@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Action;
 
@@ -8,18 +9,17 @@ use Crud\Traits\RedirectTrait;
 
 class LoginAction extends BaseAction
 {
-
     use RedirectTrait;
 
     protected $_defaultConfig = [
         'enabled' => true,
         'messages' => [
             'success' => [
-                'text' => 'Successfully logged you in'
+                'text' => 'Successfully logged you in',
             ],
             'error' => [
-                'text' => 'Invalid credentials, please try again'
-            ]
+                'text' => 'Invalid credentials, please try again',
+            ],
         ],
     ];
 
@@ -40,7 +40,7 @@ class LoginAction extends BaseAction
     /**
      * HTTP POST handler
      *
-     * @return \Cake\Network\Response
+     * @return \Cake\Http\Response
      */
     protected function _post()
     {
@@ -48,7 +48,8 @@ class LoginAction extends BaseAction
 
         $this->_trigger('beforeLogin', $subject);
 
-        if ($user = $this->_controller()->Auth->identify()) {
+        $user = $this->_controller()->Authentication->getIdentity();
+        if ($user) {
             return $this->_success($subject, $user);
         }
 
@@ -60,23 +61,23 @@ class LoginAction extends BaseAction
      *
      * @param \Crud\Event\Subject $subject Event subject.
      * @param array $user Authenticated user record data.
-     * @return \Cake\Network\Response
+     * @return \Cake\Http\Response
      */
     protected function _success(Subject $subject, array $user)
     {
         $subject->set(['success' => true, 'user' => $user]);
 
         $this->_trigger('afterLogin', $subject);
-        $this->_controller()->Auth->setUser($subject->user);
+        $this->_controller()->Authentication->setIdentity($subject->user);
         $this->setFlash('success', $subject);
 
-        $redirectUri = $this->_controller()->Auth->redirectUrl();
-        if ($this->_request()->query('redir') == "oauth") {
+        $redirectUri = $this->_controller()->Authentication->getLoginRedirect();
+        if ($this->_request()->getQuery('redir') == "oauth") {
             $redirectUri = [
                 'plugin' => 'OAuthServer',
                 'controller' => 'OAuth',
                 'action' => 'authorize',
-                '?' => $this->_request()->query
+                '?' => $this->_request()->getQueryParams(),
             ];
         }
 

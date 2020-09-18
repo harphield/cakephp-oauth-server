@@ -1,20 +1,28 @@
 <?php
+declare(strict_types=1);
+
 namespace OAuthServer\Controller\Component;
 
+use Authentication\AuthenticationServiceInterface;
+use Authentication\Authenticator\AuthenticatorInterface;
 use Cake\Controller\Component;
-use Cake\Core\App;
-use Cake\Network\Exception\NotImplementedException;
+use Cake\Datasource\EntityInterface;
+use Cake\Http\Exception\NotImplementedException;
+use Cake\ORM\Entity;
 use Cake\Utility\Inflector;
-use OAuthServer\Traits\GetStorageTrait;
+use DateInterval;
+use InvalidArgumentException;
+use League\OAuth2\Server\AuthorizationServer;
+use OAuthServer\Bridge\AuthorizationServerFactory;
+use OAuthServer\Bridge\GrantFactory;
+use OAuthServer\Bridge\UserFinderByUserCredentialsInterface;
 
-class OAuthComponent extends Component
+class OAuthComponent extends Component implements UserFinderByUserCredentialsInterface
 {
-    use GetStorageTrait;
-
     /**
      * @var \League\OAuth2\Server\AuthorizationServer
      */
-    public $Server;
+    protected $Server;
 
     /**
      * Grant types currently supported by the plugin
@@ -27,59 +35,41 @@ class OAuthComponent extends Component
      * @var array
      */
     protected $_defaultConfig = [
-        'supportedGrants' => ['AuthCode', 'RefreshToken', 'ClientCredentials', 'Password'],
-        'storages' => [
-            'session' => [
-                'className' => 'OAuthServer.Session'
-            ],
-            'accessToken' => [
-                'className' => 'OAuthServer.AccessToken'
-            ],
-            'client' => [
-                'className' => 'OAuthServer.Client'
-            ],
-            'scope' => [
-                'className' => 'OAuthServer.Scope'
-            ],
-            'authCode' => [
-                'className' => 'OAuthServer.AuthCode'
-            ],
-            'refreshToken' => [
-                'className' => 'OAuthServer.RefreshToken'
-            ]
+        'supportedGrants' => [
+            'AuthCode',
+            'RefreshToken',
+            'ClientCredentials',
+            'Password',
         ],
-        'authorizationServer' => [
-            'className' => 'League\OAuth2\Server\AuthorizationServer'
-        ]
+        'passwordAuthenticator' => 'Form',
+        'userIdentityPath' => 'id',
+        'privateKey' => null,
+        'encryptionKey' => null,
+        'accessTokenTTL' => 'PT1H',
+        'refreshTokenTTL' => 'P1M',
+        'authCodeTTL' => 'PT10M',
     ];
-
-    /**
-     * @return \League\OAuth2\Server\AuthorizationServer
-     */
-    protected function _getAuthorizationServer()
-    {
-        $serverConfig = $this->config('authorizationServer');
-        $serverClassName = App::className($serverConfig['className']);
-
-        return new $serverClassName();
-    }
 
     /**
      * @param array $config Config array
      * @return void
      */
-    public function initialize(array $config)
+    public function initialize(array $config): void
     {
-        $server = $this->_getAuthorizationServer();
-        $server->setSessionStorage($this->_getStorage('session'));
-        $server->setAccessTokenStorage($this->_getStorage('accessToken'));
-        $server->setClientStorage($this->_getStorage('client'));
-        $server->setScopeStorage($this->_getStorage('scope'));
-        $server->setAuthCodeStorage($this->_getStorage('authCode'));
-        $server->setRefreshTokenStorage($this->_getStorage('refreshToken'));
+        if ($this->getConfig('server') && $this->getConfig('server') instanceof AuthorizationServer) {
+            $this->setServer($this->getConfig('server'));
+        }
+        // Override supportedGrants option without merging.
+        if (isset($config['supportedGrants'])) {
+            $this->setConfig('supportedGrants', $config['supportedGrants'], false);
+        }
 
-        $supportedGrants = isset($config['supportedGrants']) ? $config['supportedGrants'] : $this->config('supportedGrants');
+        // setup enabled grant types.
+        $server = $this->getServer();
+        $supportedGrants = $this->getConfig('supportedGrants');
         $supportedGrants = $this->_registry->normalizeArray($supportedGrants);
+
+        $grantFactory = new GrantFactory($this);
 
         foreach ($supportedGrants as $properties) {
             $grant = $properties['class'];
@@ -88,23 +78,10 @@ class OAuthComponent extends Component
                 throw new NotImplementedException(__('The {0} grant type is not supported by the OAuthServer'));
             }
 
-            $className = '\\League\\OAuth2\\Server\\Grant\\' . $grant . 'Grant';
-            $objGrant = new $className();
+            $objGrant = $grantFactory->create($grant);
 
-            if ($grant === 'Password') {
-                $objGrant->setVerifyCredentialsCallback(function ($username, $password) {
-                    $controller = $this->_registry->getController();
-                    $controller->Auth->constructAuthenticate();
-                    $userfield = $controller->Auth->_config['authenticate']['Form']['fields']['username'];
-                    $controller->request->data[$userfield] = $username;
-                    $controller->request->data['password'] = $password;
-                    $loginOk = $controller->Auth->identify();
-                    if ($loginOk) {
-                        return $loginOk['id'];
-                    } else {
-                        return false;
-                    }
-                });
+            if (method_exists($objGrant, 'setRefreshTokenTTL')) {
+                $objGrant->setRefreshTokenTTL(new DateInterval($this->getConfig('refreshTokenTTL')));
             }
 
             foreach ($properties['config'] as $key => $value) {
@@ -114,13 +91,100 @@ class OAuthComponent extends Component
                 }
             }
 
-            $server->addGrantType($objGrant);
+            $server->enableGrantType($objGrant, new DateInterval($this->getConfig('accessTokenTTL')));
+        }
+    }
+
+    /**
+     * @return \League\OAuth2\Server\AuthorizationServer
+     */
+    public function getServer(): AuthorizationServer
+    {
+        if (!$this->Server) {
+            $factory = new AuthorizationServerFactory(
+                $this->getConfig('privateKey'),
+                $this->getConfig('encryptionKey')
+            );
+
+            $this->setServer($factory->create());
         }
 
-        if ($this->config('accessTokenTTL')) {
-            $server->setAccessTokenTTL($this->config('accessTokenTTL'));
+        return $this->Server;
+    }
+
+    /**
+     * @param \League\OAuth2\Server\AuthorizationServer $Server a AuthorizationServer instance.
+     * @return void
+     */
+    public function setServer(AuthorizationServer $Server): void
+    {
+        $this->Server = $Server;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findUser($username, $password): ?EntityInterface
+    {
+        $controller = $this->_registry->getController();
+        $authenticationService = $this->getAuthenticationService();
+        $authenticator = $this->getPasswordAuthenticator();
+
+        $uri = $controller->getRequest()->getUri();
+        $uri = $uri->withPath($authenticator->getConfig('loginUrl'));
+
+        $request = $controller->getRequest()
+            ->withData($authenticator->getConfig('fields.username'), $username)
+            ->withData($authenticator->getConfig('fields.password'), $password)
+            ->withUri($uri);
+
+        $user = $authenticator->authenticate($request);
+
+        if ($user->isValid() === false) {
+            return null;
         }
 
-        $this->Server = $server;
+        return new Entity($user->getData()->toArray());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUserIdentityPath()
+    {
+        return $this->getConfig('userIdentityPath');
+    }
+
+    /**
+     * @return \OAuthServer\Controller\Component\Authentication\AuthenticationServiceInterface
+     */
+    protected function getAuthenticationService(): AuthenticationServiceInterface
+    {
+        $controller = $this->_registry->getController();
+        $authenticationService = $controller->getRequest()->getAttribute('authentication');
+
+        if (!$authenticationService) {
+            throw new InvalidArgumentException(
+                __('OAuthComponent require \Cake\Authentication\AuthenticationService.')
+            );
+        }
+
+        return $authenticationService;
+    }
+
+    /**
+     * @return \Authentication\Authenticator\AuthenticatorInterface
+     */
+    protected function getPasswordAuthenticator(): AuthenticatorInterface
+    {
+        $authenticationService = $this->getAuthenticationService();
+
+        $authenticator = $authenticationService->authenticators()->get($this->getConfig('passwordAuthenticator'));
+
+        if (!$authenticator) {
+            throw new InvalidArgumentException(__('Can\'t get PasswordAuthenticator.'));
+        }
+
+        return $authenticator;
     }
 }
