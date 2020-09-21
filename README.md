@@ -15,10 +15,28 @@ This repository is a fork of [uafrica/oauth-server](https://github.com/uafrica/o
 
 ## Installation
 
-You can install this plugin into your CakePHP application using. Run:
+You can install this plugin into your CakePHP application. Your `composer.json` could be as follows:
+
+
+```
+  ...
+  "repositories": [
+    {
+        "name": "nouris/cakephp-oauth-server",
+        "type": "vcs",
+        "url": "https://github.com/TakoShochou/cakephp-oauth-server"
+    }
+  ],
+  "require": {
+    "nouris/cakephp-oauth-server": "^0.8.6"
+  },
+  ...
+```
+
+Then, run the following command:
 
 ```bash
-composer require elstc/cakephp-oauth-server
+composer update
 ```
 
 ### Load plugin
@@ -29,11 +47,6 @@ composer require elstc/cakephp-oauth-server
 $this->addPlugin('OAuthServer');
 ```
 
-(CakePHP <= 3.5.x) Load the plugin by adding the following statement in your project's `config/bootstrap.php` file:
-
-```php
-Plugin::load('OAuthServer', ['bootstrap' => true, 'route' => true]);
-```
 
 ### Run database migration
 
