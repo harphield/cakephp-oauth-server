@@ -16,7 +16,7 @@ This repository is a fork of [uafrica/oauth-server](https://github.com/uafrica/o
 ## Installation
 
 You can install this plugin into your CakePHP application. Your `composer.json` could be as follows:
-
+You need to look at [this](https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens).
 
 ```
   ...
