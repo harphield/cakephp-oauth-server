@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge\Repository;
 
@@ -13,7 +14,7 @@ trait RevokeTokenRepositoryTrait
     /**
      * return Token's table
      *
-     * @return Table
+     * @return \Cake\ORM\Table
      */
     abstract protected function getTable(): Table;
 

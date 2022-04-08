@@ -1,21 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\ORM\Association\BelongsTo;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 
 /**
  * Class AuthCodeScopesTable
  *
- * @property BelongsTo|AuthCodesTable $AuthCodes
- * @property BelongsTo|OauthScopesTable $OauthScopes
+ * @property \Cake\ORM\Association\BelongsTo|\OAuthServer\Model\Table\AuthCodesTable $AuthCodes
+ * @property \Cake\ORM\Association\BelongsTo|\OAuthServer\Model\Table\OauthScopesTable $OauthScopes
  */
 class OauthAuthCodeScopesTable extends Table
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -37,7 +37,7 @@ class OauthAuthCodeScopesTable extends Table
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {

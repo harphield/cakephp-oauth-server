@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
@@ -10,8 +11,8 @@ trait RevocableTokensTableTrait
     /**
      * find expired token
      *
-     * @param Query $query the query
-     * @return Query
+     * @param \Cake\ORM\Query $query the query
+     * @return \Cake\ORM\Query
      */
     public function findExpired(Query $query): Query
     {
@@ -23,8 +24,8 @@ trait RevocableTokensTableTrait
     /**
      * find revoked token
      *
-     * @param Query $query the query
-     * @return Query
+     * @param \Cake\ORM\Query $query the query
+     * @return \Cake\ORM\Query
      */
     public function findRevoked(Query $query): Query
     {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Controller;
 
@@ -8,19 +9,18 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\Utility\Hash;
 use OAuthServer\Bridge\GrantTypes;
-use OAuthServer\Controller\Component\OAuthComponent;
 
 /**
  * Class OpenidConfigurationController
  *
- * @property OAuthComponent $OAuth
+ * @property \OAuthServer\Controller\Component\OAuthComponent $OAuth
  */
 class OpenidConfigurationController extends Controller
 {
     /**
      * @return void
      */
-    public function initialize()
+    public function initialize(): void
     {
         parent::initialize();
 
@@ -68,7 +68,7 @@ class OpenidConfigurationController extends Controller
         $data = (array)$data;
 
         $this->set($data);
-        $this->set('_serialize', array_keys($data));
+        $this->viewBuilder()->setOption('serialize', array_keys($data));
     }
 
     /**
@@ -103,7 +103,7 @@ class OpenidConfigurationController extends Controller
         $keys = (array)$keys;
 
         $this->set('keys', $keys);
-        $this->set('_serialize', ['keys']);
+        $this->viewBuilder()->setOption('serialize', ['keys']);
     }
 
     /**

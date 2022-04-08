@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge;
 
@@ -9,7 +10,7 @@ use OAuthServer\Bridge\Repository\AccessTokenRepository;
 class ResourceServerFactory
 {
     /**
-     * @var AccessTokenRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface
      */
     private $accessTokenRepository;
 
@@ -29,7 +30,7 @@ class ResourceServerFactory
     }
 
     /**
-     * @return ResourceServer
+     * @return \League\OAuth2\Server\ResourceServer
      */
     public function create(): ResourceServer
     {
@@ -37,7 +38,7 @@ class ResourceServerFactory
     }
 
     /**
-     * @return AccessTokenRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface
      */
     public function getAccessTokenRepository(): AccessTokenRepositoryInterface
     {
@@ -49,7 +50,7 @@ class ResourceServerFactory
     }
 
     /**
-     * @param AccessTokenRepositoryInterface $accessTokenRepository the AccessTokenRepository
+     * @param \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface $accessTokenRepository the AccessTokenRepository
      * @return void
      */
     public function setAccessTokenRepository(AccessTokenRepositoryInterface $accessTokenRepository): void

@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge;
 
 use Cake\Utility\Inflector;
 use DateInterval;
-use Exception;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\GrantTypeInterface;
 use League\OAuth2\Server\Grant\PasswordGrant;
@@ -19,22 +19,22 @@ use OAuthServer\Bridge\Repository\UserRepository;
 class GrantFactory
 {
     /**
-     * @var UserFinderByUserCredentialsInterface
+     * @var \OAuthServer\Bridge\UserFinderByUserCredentialsInterface
      */
     private $userFinder;
 
     /**
-     * @var UserRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\UserRepositoryInterface
      */
     private $userRepository;
 
     /**
-     * @var RefreshTokenRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface
      */
     private $refreshTokenRepository;
 
     /**
-     * @var AuthCodeRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface
      */
     private $authCodeRepository;
 
@@ -46,7 +46,7 @@ class GrantFactory
     /**
      * GrantFactory constructor.
      *
-     * @param UserFinderByUserCredentialsInterface $userFinder a User finder for PasswordGrant
+     * @param \OAuthServer\Bridge\UserFinderByUserCredentialsInterface $userFinder a User finder for PasswordGrant
      */
     public function __construct(UserFinderByUserCredentialsInterface $userFinder)
     {
@@ -71,7 +71,7 @@ class GrantFactory
     }
 
     /**
-     * @return AuthCodeRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface
      */
     public function getAuthCodeRepository(): AuthCodeRepositoryInterface
     {
@@ -83,7 +83,7 @@ class GrantFactory
     }
 
     /**
-     * @param AuthCodeRepositoryInterface $authCodeRepository the AuthCode repository
+     * @param \League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface $authCodeRepository the AuthCode repository
      * @return void
      */
     public function setAuthCodeRepository(AuthCodeRepositoryInterface $authCodeRepository): void
@@ -92,7 +92,7 @@ class GrantFactory
     }
 
     /**
-     * @return UserRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\UserRepositoryInterface
      */
     public function getUserRepository(): UserRepositoryInterface
     {
@@ -104,7 +104,7 @@ class GrantFactory
     }
 
     /**
-     * @param UserRepositoryInterface $userRepository the repository
+     * @param \League\OAuth2\Server\Repositories\UserRepositoryInterface $userRepository the repository
      * @return void
      */
     public function setUserRepository(UserRepositoryInterface $userRepository): void
@@ -113,7 +113,7 @@ class GrantFactory
     }
 
     /**
-     * @return RefreshTokenRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface
      */
     public function getRefreshTokenRepository(): RefreshTokenRepositoryInterface
     {
@@ -125,7 +125,7 @@ class GrantFactory
     }
 
     /**
-     * @param RefreshTokenRepositoryInterface $refreshTokenRepository the repository
+     * @param \League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface $refreshTokenRepository the repository
      * @return void
      */
     public function setRefreshTokenRepository(RefreshTokenRepositoryInterface $refreshTokenRepository): void
@@ -135,7 +135,7 @@ class GrantFactory
 
     /**
      * @param string $grantType eg: 'AuthCode', 'RefreshToken', 'ClientCredentials', 'Password'
-     * @return GrantTypeInterface
+     * @return \League\OAuth2\Server\Grant\GrantTypeInterface
      */
     public function create($grantType): GrantTypeInterface
     {
@@ -148,8 +148,10 @@ class GrantFactory
         return $this->createDefault($grant);
     }
 
+    //phpcs:disable SlevomatCodingStandard.Classes.UnusedPrivateElements
+
     /**
-     * @return PasswordGrant
+     * @return \League\OAuth2\Server\Grant\PasswordGrant
      */
     private function createPassword(): PasswordGrant
     {
@@ -157,8 +159,8 @@ class GrantFactory
     }
 
     /**
-     * @return AuthCodeGrant
-     * @throws Exception
+     * @return \League\OAuth2\Server\Grant\AuthCodeGrant
+     * @throws \Exception
      */
     private function createAuthCode(): AuthCodeGrant
     {
@@ -170,7 +172,7 @@ class GrantFactory
     }
 
     /**
-     * @return RefreshTokenGrant
+     * @return \League\OAuth2\Server\Grant\RefreshTokenGrant
      */
     private function createRefreshToken(): RefreshTokenGrant
     {
@@ -179,7 +181,7 @@ class GrantFactory
 
     /**
      * @param string $grant class name
-     * @return GrantTypeInterface
+     * @return \League\OAuth2\Server\Grant\GrantTypeInterface
      */
     private function createDefault($grant): GrantTypeInterface
     {
@@ -187,4 +189,6 @@ class GrantFactory
 
         return new $className();
     }
+
+    // phpcs:enable
 }

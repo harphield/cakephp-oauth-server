@@ -1,19 +1,19 @@
 {
-    "name": "elstc/cakephp-oauth-server",
-    "description": "OAuth Server for CakePHP 3 using the PHP League's OAuth2 Server",
+    "name": "nouris/cakephp-oauth-server",
+    "description": "OAuth Server for CakePHP 4 using the PHP League's OAuth2 Server",
     "type": "cakephp-plugin",
     "keywords": ["cakephp", "oauth", "oauth2", "oauth server", "oauth2 server"],
     "require": {
-        "php": ">= 7.2",
+        "php": ">= 7.2.0",
         "ext-json": "*",
         "ext-openssl": "*",
-        "cakephp/cakephp": "^3.5.18",
+        "cakephp/cakephp": "^4.0",
         "league/oauth2-server": "~8.3.4",
-        "cakephp/migrations": "2.*"
+        "cakephp/authentication": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.0",
-        "cakephp/cakephp-codesniffer": "^3.2.1"
+        "phpunit/phpunit": "~8.5.0",
+        "cakephp/cakephp-codesniffer": "^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -43,6 +43,7 @@
     ],
     "scripts": {
         "cs-check": "phpcs --colors -ps --extensions=php --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=config/Migrations/* ./src ./tests ./config",
-        "cs-fix": "phpcbf -p --extensions=php --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=config/Migrations/* ./src ./tests ./config"
+        "cs-fix": "phpcbf -p --extensions=php --standard=vendor/cakephp/cakephp-codesniffer/CakePHP --ignore=config/Migrations/* ./src ./tests ./config",
+        "test": "phpunit"
     }
 }

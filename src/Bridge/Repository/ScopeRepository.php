@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge\Repository;
 
@@ -7,7 +8,6 @@ use Cake\Event\EventDispatcherInterface;
 use Cake\Event\EventDispatcherTrait;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
-use OAuthServer\Model\Table\OauthScopesTable;
 
 class ScopeRepository implements ScopeRepositoryInterface, EventDispatcherInterface
 {
@@ -15,7 +15,7 @@ class ScopeRepository implements ScopeRepositoryInterface, EventDispatcherInterf
     use ModelAwareTrait;
 
     /**
-     * @var OauthScopesTable
+     * @var \OAuthServer\Model\Table\OauthScopesTable
      */
     private $table;
 
@@ -28,7 +28,7 @@ class ScopeRepository implements ScopeRepositoryInterface, EventDispatcherInterf
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getScopeEntityByIdentifier($identifier)
     {
@@ -36,10 +36,14 @@ class ScopeRepository implements ScopeRepositoryInterface, EventDispatcherInterf
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function finalizeScopes(array $scopes, $grantType, ClientEntityInterface $clientEntity, $userIdentifier = null)
-    {
+    public function finalizeScopes(
+        array $scopes,
+        $grantType,
+        ClientEntityInterface $clientEntity,
+        $userIdentifier = null
+    ) {
         $result = $this->dispatchEvent('OAuthServer.finalizeScopes', compact(
             'scopes',
             'grantType',

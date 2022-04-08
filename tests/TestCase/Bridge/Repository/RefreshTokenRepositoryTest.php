@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Bridge\Repository;
 
@@ -7,11 +8,9 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
-use OAuthServer\Bridge\Repository\AccessTokenRepository;
 use OAuthServer\Bridge\Repository\RefreshTokenRepository;
 use OAuthServer\Model\Entity\AccessToken;
 use OAuthServer\Model\Entity\RefreshToken;
-use OAuthServer\Model\Table\RefreshTokensTable;
 
 class RefreshTokenRepositoryTest extends TestCase
 {
@@ -28,24 +27,18 @@ class RefreshTokenRepositoryTest extends TestCase
     private $repository;
 
     /**
-     * @var AccessTokenRepository
-     */
-    private $accessTokenRepository;
-
-    /**
      * @var RefreshTokensTable
      */
     private $RefreshTokens;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->repository = new RefreshTokenRepository();
-        $this->accessTokenRepository = new AccessTokenRepository();
         $this->RefreshTokens = TableRegistry::getTableLocator()->get('OAuthServer.RefreshTokens');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->repository, $this->clientRepository, $this->scopeRepository, $this->RefreshTokens);
         FrozenTime::setTestNow();

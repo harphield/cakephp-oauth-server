@@ -6,7 +6,7 @@ use OAuthServer\Test\Fixture\AccessTokenScopesFixture as BaseFixture;
 
 class AccessTokenScopesFixture extends BaseFixture
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->records = [];

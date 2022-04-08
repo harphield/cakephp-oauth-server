@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge;
 
@@ -18,35 +19,35 @@ use OAuthServer\Bridge\Repository\ScopeRepository;
 class AuthorizationServerFactory
 {
     /**
-     * @var ClientRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\ClientRepositoryInterface
      */
     private $clientRepository;
 
     /**
-     * @var AccessTokenRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface
      */
     private $accessTokenRepository;
 
     /**
-     * @var ScopeRepositoryInterface
+     * @var \League\OAuth2\Server\Repositories\ScopeRepositoryInterface
      */
     private $scopeRepository;
 
     /**
-     * @var CryptKey
+     * @var \League\OAuth2\Server\CryptKey
      */
     private $privateKey;
 
     /**
-     * @var Key
+     * @var \Defuse\Crypto\Key
      */
     private $encryptionKey;
 
     /**
      * AuthorizationServerFactory constructor.
      *
-     * @param CryptKey|string $privateKey the PrivateKey's path or a CryptKey instance.
-     * @param Key|string $encryptionKey the Encryption key string or a Key instance,
+     * @param \League\OAuth2\Server\CryptKey|string $privateKey the PrivateKey's path or a CryptKey instance.
+     * @param \Defuse\Crypto\Key|string $encryptionKey the Encryption key string or a Key instance,
      */
     public function __construct($privateKey, $encryptionKey)
     {
@@ -55,7 +56,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return AuthorizationServer
+     * @return \League\OAuth2\Server\AuthorizationServer
      */
     public function create(): AuthorizationServer
     {
@@ -69,7 +70,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return ClientRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\ClientRepositoryInterface
      */
     public function getClientRepository(): ClientRepositoryInterface
     {
@@ -81,7 +82,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @param ClientRepositoryInterface $clientRepository the Repository
+     * @param \League\OAuth2\Server\Repositories\ClientRepositoryInterface $clientRepository the Repository
      * @return void
      */
     public function setClientRepository(ClientRepositoryInterface $clientRepository): void
@@ -90,7 +91,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return AccessTokenRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface
      */
     public function getAccessTokenRepository(): AccessTokenRepositoryInterface
     {
@@ -102,7 +103,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @param AccessTokenRepositoryInterface $accessTokenRepository the Repository
+     * @param \League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface $accessTokenRepository the Repository
      * @return void
      */
     public function setAccessTokenRepository(AccessTokenRepositoryInterface $accessTokenRepository): void
@@ -111,7 +112,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return ScopeRepositoryInterface
+     * @return \League\OAuth2\Server\Repositories\ScopeRepositoryInterface
      */
     public function getScopeRepository(): ScopeRepositoryInterface
     {
@@ -123,7 +124,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @param ScopeRepositoryInterface $scopeRepository the Repository
+     * @param \League\OAuth2\Server\Repositories\ScopeRepositoryInterface $scopeRepository the Repository
      * @return void
      */
     public function setScopeRepository(ScopeRepositoryInterface $scopeRepository): void
@@ -132,7 +133,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return CryptKey
+     * @return \League\OAuth2\Server\CryptKey
      */
     public function getPrivateKey(): CryptKey
     {
@@ -140,7 +141,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @param CryptKey|string $privateKey the PrivateKey's path or a CryptKey instance.
+     * @param \League\OAuth2\Server\CryptKey|string $privateKey the PrivateKey's path or a CryptKey instance.
      * @return void
      */
     public function setPrivateKey($privateKey): void
@@ -153,7 +154,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @return Key
+     * @return \Defuse\Crypto\Key
      */
     public function getEncryptionKey(): Key
     {
@@ -161,7 +162,7 @@ class AuthorizationServerFactory
     }
 
     /**
-     * @param Key|string $encryptionKey the Encryption key string or a Key instance,
+     * @param \Defuse\Crypto\Key|string $encryptionKey the Encryption key string or a Key instance,
      * @return void
      */
     public function setEncryptionKey($encryptionKey): void

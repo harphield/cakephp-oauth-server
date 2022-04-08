@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Bridge\Repository;
 
@@ -12,7 +13,6 @@ use OAuthServer\Bridge\Repository\ClientRepository;
 use OAuthServer\Bridge\Repository\ScopeRepository;
 use OAuthServer\Model\Entity\AuthCode;
 use OAuthServer\Model\Entity\Scope;
-use OAuthServer\Model\Table\AuthCodesTable;
 
 class AuthCodeRepositoryTest extends TestCase
 {
@@ -43,7 +43,7 @@ class AuthCodeRepositoryTest extends TestCase
      */
     private $AuthCodes;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->repository = new AuthCodeRepository();
@@ -52,7 +52,7 @@ class AuthCodeRepositoryTest extends TestCase
         $this->AuthCodes = TableRegistry::getTableLocator()->get('OAuthServer.AuthCodes');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->repository, $this->clientRepository, $this->scopeRepository, $this->AuthCodes);
         FrozenTime::setTestNow();
@@ -86,7 +86,8 @@ class AuthCodeRepositoryTest extends TestCase
         $this->assertSame('TEST', $saved->getClient()->getIdentifier());
         $this->assertSame('user1', $saved->getUserIdentifier());
         $this->assertSame('https://example.com', $saved->getRedirectUri());
-        $this->assertSame(['test'], collection($saved->getScopes())->extract(static function (Scope $scope) {
+        $this->assertSame(['test'], $saved->getScopes());
+        $this->assertSame(['test'], collection($saved->getRawScopes())->extract(static function (Scope $scope) {
             return $scope->getIdentifier();
         })->toList());
     }

@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Model\Table;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use OAuthServer\Model\Table\OauthClientsTable;
 
 class OauthClientsTableTest extends TestCase
 {
@@ -17,12 +17,12 @@ class OauthClientsTableTest extends TestCase
      */
     private $Clients;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->Clients = TableRegistry::getTableLocator()->get('OAuthServer.OauthClients');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->Clients);
         parent::tearDown();

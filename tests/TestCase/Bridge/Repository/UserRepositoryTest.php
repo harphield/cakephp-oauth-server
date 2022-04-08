@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Bridge\Repository;
 
@@ -7,7 +8,6 @@ use OAuthServer\Bridge\Entity\User;
 use OAuthServer\Bridge\Repository\UserRepository;
 use OAuthServer\Bridge\UserFinderByUserCredentialsInterface;
 use OAuthServer\Model\Entity\Client;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class UserRepositoryTest extends TestCase
@@ -22,14 +22,14 @@ class UserRepositoryTest extends TestCase
      */
     private $repository;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->finder = $this->getMockBuilder(UserFinderByUserCredentialsInterface::class)->getMock();
         $this->repository = new UserRepository($this->finder);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->repository, $this->finder);
         parent::tearDown();
@@ -50,7 +50,7 @@ class UserRepositoryTest extends TestCase
 
         $this->finder
             ->expects($this->once())
-            ->method('getPrimaryKey')
+            ->method('getUserIdentityPath')
             ->willReturn('id');
 
         $result = $this->repository->getUserEntityByUserCredentials($username, $password, $grantType, $client);

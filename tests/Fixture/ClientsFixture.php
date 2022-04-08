@@ -26,7 +26,7 @@ class ClientsFixture extends TestFixture
         ],
     ];
 
-    public function init()
+    public function init(): void
     {
         $this->records[] = [
             'id' => 'TEST',

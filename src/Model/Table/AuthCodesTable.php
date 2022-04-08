@@ -1,37 +1,32 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\Datasource\EntityInterface;
-use Cake\ORM\Association\BelongsTo;
-use Cake\ORM\Association\BelongsToMany;
-use Cake\ORM\Association\HasMany;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use OAuthServer\Model\Entity\AuthCode;
 
 /**
  * AuthCode Model
  *
- * @property BelongsTo|OauthClientsTable $OauthClients
- * @property HasMany|OauthAuthCodeScopesTable $AuthCodeScopes
- * @property BelongsToMany|OauthScopesTable $OauthScopes
- *
- * @method AuthCode get($primaryKey, $options = [])
- * @method AuthCode newEntity($data = null, array $options = [])
- * @method AuthCode[] newEntities(array $data, array $options = [])
- * @method AuthCode|bool save(EntityInterface $entity, $options = [])
- * @method AuthCode patchEntity(EntityInterface $entity, array $data, array $options = [])
- * @method AuthCode[] patchEntities($entities, array $data, array $options = [])
- * @method AuthCode findOrCreate($search, callable $callback = null, $options = [])
+ * @property \Cake\ORM\Association\BelongsTo|\OAuthServer\Model\Table\OauthClientsTable $OauthClients
+ * @property \Cake\ORM\Association\HasMany|\OAuthServer\Model\Table\OauthAuthCodeScopesTable $AuthCodeScopes
+ * @property \OAuthServer\Model\Table\BelongsToMany|\OAuthServer\Model\Table\OauthScopesTable $OauthScopes
+ * @method \OAuthServer\Model\Table\AuthCode get($primaryKey, $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode newEntity($data = null, array $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode[] newEntities(array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode|bool save(\OAuthServer\Model\Table\EntityInterface $entity, $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode patchEntity(\OAuthServer\Model\Table\EntityInterface $entity, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode[] patchEntities($entities, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AuthCode findOrCreate($search, callable $callback = null, $options = [])
  */
 class AuthCodesTable extends Table implements RevocableTokensTableInterface
 {
     use RevocableTokensTableTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -60,7 +55,7 @@ class AuthCodesTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -71,7 +66,7 @@ class AuthCodesTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {

@@ -1,33 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\Datasource\EntityInterface;
-use Cake\ORM\Association\BelongsTo;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use OAuthServer\Model\Entity\RefreshToken;
 
 /**
  * RefreshToken Model
  *
- * @property BelongsTo|AccessTokensTable $AccessTokens
- *
- * @method RefreshToken get($primaryKey, $options = [])
- * @method RefreshToken newEntity($data = null, array $options = [])
- * @method RefreshToken[] newEntities(array $data, array $options = [])
- * @method RefreshToken|bool save(EntityInterface $entity, $options = [])
- * @method RefreshToken patchEntity(EntityInterface $entity, array $data, array $options = [])
- * @method RefreshToken[] patchEntities($entities, array $data, array $options = [])
- * @method RefreshToken findOrCreate($search, callable $callback = null, $options = [])
+ * @property \OAuthServer\Model\Table\BelongsTo|\OAuthServer\Model\Table\AccessTokensTable $AccessTokens
+ * @method \OAuthServer\Model\Table\RefreshToken get($primaryKey, $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken newEntity($data = null, array $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken[] newEntities(array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken|bool save(\OAuthServer\Model\Table\EntityInterface $entity, $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken patchEntity(\OAuthServer\Model\Table\EntityInterface $entity, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken[] patchEntities($entities, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\RefreshToken findOrCreate($search, callable $callback = null, $options = [])
  */
 class RefreshTokensTable extends Table implements RevocableTokensTableInterface
 {
     use RevocableTokensTableTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -43,7 +40,7 @@ class RefreshTokensTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -54,8 +51,8 @@ class RefreshTokensTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * @param RulesChecker $rules the rules
-     * @return RulesChecker
+     * @param \Cake\ORM\RulesChecker $rules the rules
+     * @return \Cake\ORM\RulesChecker
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {

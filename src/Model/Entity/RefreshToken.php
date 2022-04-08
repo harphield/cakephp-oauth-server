@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Entity;
 
@@ -14,7 +15,7 @@ use OAuthServer\Bridge\Entity\ExpiryDateTimeTrait;
  * @property string $oauth_token
  * @property int $expires
  * @property bool $revoked
- * @property AccessToken $access_token
+ * @property \OAuthServer\Model\Entity\AccessToken $access_token
  */
 class RefreshToken extends Entity implements RefreshTokenEntityInterface
 {

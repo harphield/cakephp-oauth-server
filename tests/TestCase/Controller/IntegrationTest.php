@@ -1,22 +1,22 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Controller;
 
-use Cake\Controller\ComponentRegistry;
+use Authentication\Authenticator\ResultInterface;
 use Cake\Core\Configure;
-use Cake\Core\Plugin;
-use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestCase;
 use Defuse\Crypto\Key;
 use League\OAuth2\Server\CryptTrait;
-use OAuthServer\Auth\OAuthAuthenticate;
-use OAuthServer\Model\Table\AccessTokensTable;
-use OAuthServer\Model\Table\AuthCodesTable;
-use OAuthServer\Model\Table\RefreshTokensTable;
+use OAuthServer\Authenticator\OAuthAuthenticator;
+use OAuthServer\Identifier\OAuthIdentifier;
+use OAuthServer\Plugin as OAuthServerPlugin;
+use TestApp\AuthenticationServiceProvider;
 
 class IntegrationTest extends IntegrationTestCase
 {
@@ -57,7 +57,7 @@ class IntegrationTest extends IntegrationTestCase
      * @noinspection PhpIncludeInspection
      * @noinspection PhpUnhandledExceptionInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         // class Router needs to be loaded in order for TestCase to automatically include routes
         // not really sure how to do it properly, this hotfix seems good enough
@@ -67,9 +67,11 @@ class IntegrationTest extends IntegrationTestCase
 
         Router::connect('/');
         Router::scope('/', static function (RouteBuilder $route) {
+            $OAuthServerPlugin = new OAuthServerPlugin();
+            $OAuthServerPlugin->routes($route);
+
             $route->fallbacks();
         });
-        include Plugin::configPath('OAuthServer') . 'routes.php';
 
         $this->AccessTokens = TableRegistry::getTableLocator()->get('OAuthServer.AccessTokens');
         $this->RefreshTokens = TableRegistry::getTableLocator()->get('OAuthServer.RefreshTokens');
@@ -79,13 +81,15 @@ class IntegrationTest extends IntegrationTestCase
 
         $componentRegistry = $this->getMockBuilder(ComponentRegistry::class)->getMock();
 
-        $this->auth = new OAuthAuthenticate($componentRegistry, [
-            'userModel' => 'Users',
-            'publicKey' => Configure::read('OAuthServer.publicKey'),
-        ]);
+        $this->auth = new OAuthAuthenticator(
+            new OAuthIdentifier(),
+            [
+                'publicKey' => Configure::read('OAuthServer.publicKey'),
+            ]
+        );
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->AccessTokens, $this->RefreshTokens, $this->AuthCodes);
         parent::tearDown();
@@ -94,8 +98,14 @@ class IntegrationTest extends IntegrationTestCase
     public function testAuthorization()
     {
         // --- 1. Get a authorization code
-        $this->session(['Auth.User.id' => 'user1']);
+        $this->session(['Auth.User' => new Entity(['id' => 'user1'])]);
 
+        $authenticationServiceProvider = new AuthenticationServiceProvider();
+        $this->configRequest([
+            'attributes' => [
+                'authentication' => $authenticationServiceProvider->getAuthenticationService(new ServerRequest()),
+            ],
+        ]);
         $query = ['client_id' => 'TEST', 'redirect_uri' => 'http://www.example.com', 'response_type' => 'code', 'scope' => 'test'];
         $this->post($this->url('/oauth/authorize') . '?' . http_build_query($query), ['authorization' => 'Approve']);
 
@@ -180,11 +190,14 @@ class IntegrationTest extends IntegrationTestCase
 
         // --- Test authorization with access token
         $request = (new ServerRequest())->withHeader('Authorization', sprintf('Bearer %s', $refreshed['access_token']));
-        $authResult = $this->auth->authenticate($request, new Response());
-        $this->assertSame('Alice', $authResult['name']);
+        $authResult = $this->auth->authenticate($request);
+        $this->assertInstanceOf(ResultInterface::class, $authResult);
+        $this->assertSame('Alice', $authResult->getData()->name);
         // Can't authorization with previous token
         $request = (new ServerRequest())->withHeader('Authorization', sprintf('Bearer %s', $response['access_token']));
-        $this->assertFalse($this->auth->authenticate($request, new Response()));
+        $authResult = $this->auth->authenticate($request);
+        $this->assertInstanceOf(ResultInterface::class, $this->auth->authenticate($request));
+        $this->assertFalse($authResult->isValid());
     }
 
     private function grabResponseJson()

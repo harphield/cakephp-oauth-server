@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Action;
 
 use Crud\Action\BaseAction;
-use Crud\Event\Subject;
 use Crud\Traits\RedirectTrait;
 
 class LogoutAction extends BaseAction
@@ -31,7 +31,7 @@ class LogoutAction extends BaseAction
 
         $subject->set([
             'success' => true,
-            'redirectUrl' => $this->_controller()->Auth->logout(),
+            'redirectUrl' => $this->_controller()->Authentication->logout(),
         ]);
 
         $this->_trigger('afterLogout', $subject);

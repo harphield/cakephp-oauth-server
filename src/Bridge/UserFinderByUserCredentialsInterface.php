@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge;
 
@@ -11,14 +12,14 @@ interface UserFinderByUserCredentialsInterface
      *
      * @param string $username a username
      * @param string $password a password
-     * @return EntityInterface|null
+     * @return \Cake\Datasource\EntityInterface|null
      */
     public function findUser($username, $password): ?EntityInterface;
 
     /**
-     * Get Users repository primary key
+     * Get Users repository identity path
      *
      * @return string
      */
-    public function getPrimaryKey();
+    public function getUserIdentityPath();
 }

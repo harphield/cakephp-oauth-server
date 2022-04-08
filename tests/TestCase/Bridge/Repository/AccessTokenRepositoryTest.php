@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Bridge\Repository;
 
@@ -12,7 +13,6 @@ use OAuthServer\Bridge\Repository\ClientRepository;
 use OAuthServer\Bridge\Repository\ScopeRepository;
 use OAuthServer\Model\Entity\AccessToken;
 use OAuthServer\Model\Entity\Scope;
-use OAuthServer\Model\Table\AccessTokensTable;
 
 class AccessTokenRepositoryTest extends TestCase
 {
@@ -43,7 +43,7 @@ class AccessTokenRepositoryTest extends TestCase
      */
     private $AccessTokens;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->repository = new AccessTokenRepository();
@@ -52,7 +52,7 @@ class AccessTokenRepositoryTest extends TestCase
         $this->AccessTokens = TableRegistry::getTableLocator()->get('OAuthServer.AccessTokens');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->repository, $this->clientRepository, $this->scopeRepository, $this->AccessTokens);
         FrozenTime::setTestNow();
@@ -74,7 +74,8 @@ class AccessTokenRepositoryTest extends TestCase
         $this->assertSame('TEST', $token->getClient()->getIdentifier());
         $this->assertSame('TEST', $token->client_id);
         $this->assertSame('user1', $token->getUserIdentifier());
-        $this->assertSame(['test'], collection($token->getScopes())->extract(static function (Scope $scope) {
+        $this->assertSame(['test'], $token->getScopes());
+        $this->assertSame(['test'], collection($token->getRawScopes())->extract(static function (Scope $scope) {
             return $scope->getIdentifier();
         })->toList());
     }
@@ -97,7 +98,8 @@ class AccessTokenRepositoryTest extends TestCase
         $this->assertSame('access_token_1', $saved->getIdentifier());
         $this->assertSame('TEST', $saved->getClient()->getIdentifier());
         $this->assertSame('user1', $saved->getUserIdentifier());
-        $this->assertSame(['test'], collection($saved->getScopes())->extract(static function (Scope $scope) {
+        $this->assertSame(['test'], $token->getScopes());
+        $this->assertSame(['test'], collection($saved->getRawScopes())->extract(static function (Scope $scope) {
             return $scope->getIdentifier();
         })->toList());
     }

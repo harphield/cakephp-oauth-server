@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 use Cake\Core\ClassLoader;
 use Cake\Core\Configure;
-use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
-use Cake\Routing\DispatcherFactory;
+use Cake\Utility\Security;
 
 $findRoot = function ($root) {
     do {
@@ -36,9 +36,10 @@ Configure::write('debug', true);
 Configure::write('App', [
     'namespace' => 'TestApp',
     'base' => '',
+    'encoding' => 'UTF-8',
     'paths' => [
         'plugins' => [ROOT . 'Plugin' . DS],
-        'templates' => [ROOT . 'Template' . DS],
+        'templates' => [ROOT . 'templates' . DS],
     ],
 ]);
 Cake\Cache\Cache::setConfig([
@@ -78,6 +79,6 @@ if (version_compare(Configure::version(), '3.6.0', '>=')) {
     error_reporting(E_ALL ^ E_USER_DEPRECATED);
 }
 
-Plugin::load('OAuthServer', ['path' => $root . DS, 'bootstrap' => true, 'route' => true]);
+Security::setSalt('test');
 
 error_reporting(E_ALL);

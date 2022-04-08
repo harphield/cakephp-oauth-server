@@ -1,39 +1,52 @@
-# OAuth2 Server for CakePHP 3
+# OAuth2 Server for CakePHP 4
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
 [![Build Status](https://img.shields.io/travis/nojimage/cakephp-oauth-server/0.8.x.svg?style=flat-square)](https://travis-ci.org/nojimage/cakephp-oauth-server)
 
-A plugin for implementing an OAuth2 server in CakePHP 3. Built on top of the [PHP League's OAuth2 Server](http://oauth2.thephpleague.com/). Currently we support the following grant types: AuthCode, RefreshToken, ClientCredentials.
+A plugin for implementing an OAuth2 server in CakePHP 4. Built on top of the [PHP League's OAuth2 Server](http://oauth2.thephpleague.com/). Currently we support the following grant types: AuthCode, RefreshToken, ClientCredentials.
 
 This repository is a fork of [uafrica/oauth-server](https://github.com/uafrica/oauth-server).
 
 ## Requirements
 
-- PHP >= 7.1 with openssl extension
-- CakePHP >= 3.5
+- PHP >= 7.2 with openssl extension
+- CakePHP >= 4.0
 - Database (MySQL, SQLite tested)
 
 ## Installation
 
-You can install this plugin into your CakePHP application using. Run:
+You can install this plugin into your CakePHP application. Your `composer.json` could be as follows:
+You need to look at [this](https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens).
+
+```
+  ...
+  "repositories": [
+    {
+        "name": "nouris/cakephp-oauth-server",
+        "type": "vcs",
+        "url": "https://github.com/TakoShochou/cakephp-oauth-server"
+    }
+  ],
+  "require": {
+    "nouris/cakephp-oauth-server": "^0.8.6"
+  },
+  ...
+```
+
+Then, run the following command:
 
 ```bash
-composer require elstc/cakephp-oauth-server
+composer update
 ```
 
 ### Load plugin
 
-(CakePHP >= 3.6.0) Load the plugin by adding the following statement in your project's `src/Application.php`:
+(CakePHP >= 4.0.0) Load the plugin by adding the following statement in your project's `src/Application.php`:
 
 ```php
 $this->addPlugin('OAuthServer');
 ```
 
-(CakePHP <= 3.5.x) Load the plugin by adding the following statement in your project's `config/bootstrap.php` file:
-
-```php
-Plugin::load('OAuthServer', ['bootstrap' => true, 'route' => true]);
-```
 
 ### Run database migration
 
@@ -112,18 +125,21 @@ It is recommended to insert between AssetMiddleware and RoutingMiddleware.
 
 ## Configuration
 
-It is assumed that you already have working Form based authentication using the built in CakePHP 3 authentication component.
-If you do not, please read [the authentication chapter](http://book.cakephp.org/3.0/en/controllers/components/authentication.html).
+It is assumed that you already have working Form based authentication using the built in CakePHP 4 authentication component.
+If you do not, please read [the authentication chapter](https://book.cakephp.org/authentication/2/en/index.htm) and [Connecting Scoped Middleware](book.cakephp.org/4/en/development/routing.html#connecting-scoped-middleware)
 
 Set OAuthServer as an authentication adaptor.
+```
+use Authentication\AuthenticationService;
 
-In your `AppController::beforeFilter()` method, add (or modify)
+$service = new AuthenticationService();
 
-```php
-$this->Auth->config('authenticate', [
-    'Form',
-    'OAuthServer.OAuth'
-]);
+// OAuth authenticator
+$service->loadAuthenticator('OAuthServer.OAuth');
+
+// OAuth identifier
+$service->loadIdentifier('OAuthServer.OAuth');
+
 ```
 
 Change your login method to look as follows:
@@ -131,30 +147,22 @@ Change your login method to look as follows:
 ```php
 public function login()
 {
-    if ($this->request->is('post')) {
-        $user = $this->Auth->identify();
-        if ($user) {
-            $this->Auth->setUser($user);
-
-            $redirectUri = $this->Auth->redirectUrl();
-            if ($this->request->getQuery('redir') === 'oauth') {
-                $redirectUri = [
-                    'plugin' => 'OAuthServer',
-                    'controller' => 'OAuth',
-                    'action' => 'authorize',
-                    '?' => $this->request->getQueryParams(),
-                ];
-            }
-
-            return $this->redirect($redirectUri);
-        } else {
-            $this->Flash->error(
-                __('Username or password is incorrect'),
-                'default',
-                [],
-                'auth'
-            );
+    $result = $this->Authentication->getResult();
+    // If the user is logged in send them away.
+    if ($result->isValid()) {
+        $target = $this->Authentication->getLoginRedirect() ?? '/home';
+        if ($this->request->getQuery('redir') === 'oauth') {
+            $target = [
+                'plugin' => 'OAuthServer',
+                'controller' => 'OAuth',
+                'action' => 'authorize',
+                '?' => $this->request->getQueryParams(),
+            ];
         }
+        return $this->redirect($target);
+    }
+    if ($this->request->is('post') && !$result->isValid()) {
+        $this->Flash->error('Invalid username or password');
     }
 }
 ```

@@ -8,7 +8,6 @@
 namespace OAuthServer\Test\Fixture;
 
 use Cake\Auth\DefaultPasswordHasher;
-use Cake\I18n\FrozenTime;
 use Cake\TestSuite\Fixture\TestFixture;
 
 class UsersFixture extends TestFixture
@@ -25,7 +24,7 @@ class UsersFixture extends TestFixture
         ],
     ];
 
-    public function init()
+    public function init(): void
     {
         $hasher = new DefaultPasswordHasher();
 

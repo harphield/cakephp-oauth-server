@@ -27,7 +27,7 @@ class AccessTokensFixture extends TestFixture
         ],
     ];
 
-    public function init()
+    public function init(): void
     {
         $this->records[] = [
             'oauth_token' => 'exist_token_1',

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Action;
 
@@ -47,7 +48,8 @@ class LoginAction extends BaseAction
 
         $this->_trigger('beforeLogin', $subject);
 
-        if ($user = $this->_controller()->Auth->identify()) {
+        $user = $this->_controller()->Authentication->getIdentity();
+        if ($user) {
             return $this->_success($subject, $user);
         }
 
@@ -66,16 +68,16 @@ class LoginAction extends BaseAction
         $subject->set(['success' => true, 'user' => $user]);
 
         $this->_trigger('afterLogin', $subject);
-        $this->_controller()->Auth->setUser($subject->user);
+        $this->_controller()->Authentication->setIdentity($subject->user);
         $this->setFlash('success', $subject);
 
-        $redirectUri = $this->_controller()->Auth->redirectUrl();
-        if ($this->_request()->query('redir') == "oauth") {
+        $redirectUri = $this->_controller()->Authentication->getLoginRedirect();
+        if ($this->_request()->getQuery('redir') == "oauth") {
             $redirectUri = [
                 'plugin' => 'OAuthServer',
                 'controller' => 'OAuth',
                 'action' => 'authorize',
-                '?' => $this->_request()->query,
+                '?' => $this->_request()->getQueryParams(),
             ];
         }
 

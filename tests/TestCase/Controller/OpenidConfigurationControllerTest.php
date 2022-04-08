@@ -1,12 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Controller;
 
-use Cake\Core\Plugin;
 use Cake\Http\ServerRequest;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestCase;
+use OAuthServer\Plugin as OAuthServerPlugin;
 
 class OpenidConfigurationControllerTest extends IntegrationTestCase
 {
@@ -16,7 +17,7 @@ class OpenidConfigurationControllerTest extends IntegrationTestCase
     /**
      * @noinspection PhpIncludeInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         // class Router needs to be loaded in order for TestCase to automatically include routes
         // not really sure how to do it properly, this hotfix seems good enough
@@ -26,21 +27,23 @@ class OpenidConfigurationControllerTest extends IntegrationTestCase
 
         Router::connect('/');
         Router::scope('/', static function (RouteBuilder $route) {
+            $OAuthServerPlugin = new OAuthServerPlugin();
+            $OAuthServerPlugin->routes($route);
+
             $route->fallbacks();
         });
-        include Plugin::configPath('OAuthServer') . 'routes.php';
 
         Router::fullBaseUrl('http://issuer.example.com');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
     }
 
     public function testAssertRoute()
     {
-        $parsed = Router::parseRequest(new ServerRequest('/.well-known/openid-configuration'));
+        $parsed = Router::parseRequest(new ServerRequest(['url' => '/.well-known/openid-configuration']));
         $this->assertEquals([
             'controller' => 'OpenidConfiguration',
             'action' => 'view',
@@ -49,7 +52,7 @@ class OpenidConfigurationControllerTest extends IntegrationTestCase
             '_matchedRoute' => '/.well-known/openid-configuration',
         ], $parsed);
 
-        $parsed = Router::parseRequest(new ServerRequest('/oauth/jwks.json'));
+        $parsed = Router::parseRequest(new ServerRequest(['url' => '/oauth/jwks.json']));
         $this->assertEquals([
             'controller' => 'OpenidConfiguration',
             'action' => 'jwks',

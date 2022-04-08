@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Middleware;
 
@@ -11,13 +12,13 @@ use Zend\Diactoros\ServerRequest;
 
 class AuthorizationEnvironmentMiddlewareTest extends TestCase
 {
-    protected function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         unset($_SERVER['HTTP_AUTHORIZATION'], $_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
     }
 
-    protected function tearDown()
+    public function tearDown(): void
     {
         unset($_SERVER['HTTP_AUTHORIZATION'], $_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
         parent::tearDown();

@@ -1,16 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge;
 
 class GrantTypes
 {
-    const CLIENT_CREDENTIALS = 'client_credentials';
+    public const CLIENT_CREDENTIALS = 'client_credentials';
 
-    const AUTHORIZATION_CODE = 'authorization_code';
+    public const AUTHORIZATION_CODE = 'authorization_code';
 
-    const REFRESH_TOKEN = 'refresh_token';
+    public const REFRESH_TOKEN = 'refresh_token';
 
-    const PASSWORD = 'password';
+    public const PASSWORD = 'password';
 
     protected static $classNameMap = [
         'ClientCredentialsGrant' => self::CLIENT_CREDENTIALS,
@@ -42,6 +43,6 @@ class GrantTypes
      */
     public static function convertFromGrantClassName(string $grantClassName): ?string
     {
-        return isset(static::$classNameMap[$grantClassName]) ? static::$classNameMap[$grantClassName] : null;
+        return static::$classNameMap[$grantClassName] ?? null;
     }
 }

@@ -1,22 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Controller;
 
-use Cake\Controller\Controller;
 use Cake\Core\Configure;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 use Cake\Http\Exception\HttpException;
 use Cake\Http\Response;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OAuthServer\Bridge\Entity\User;
-use OAuthServer\Controller\Component\OAuthComponent;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
 /**
  * Class OAuthController
  *
- * @property OAuthComponent $OAuth
+ * @property \OAuthServer\Controller\Component\OAuthComponent $OAuth
  * @mixin Controller
  */
 class OAuthController extends AppController
@@ -30,22 +29,19 @@ class OAuthController extends AppController
 
         $this->loadComponent('OAuthServer.OAuth', Configure::read('OAuthServer', []));
         $this->loadComponent('RequestHandler');
-        $this->RequestHandler->setConfig('enableBeforeRedirect', false);
 
-        if (!$this->components()->has('Auth')) {
-            throw new RuntimeException('OAuthServer requires Auth component to be loaded and properly configured');
+        if (!$this->components()->has('Authentication')) {
+            throw new RuntimeException(
+                'OAuthServer requires Authentication component to be loaded and properly configured'
+            );
         }
 
-        $this->Auth->allow(['oauth', 'accessToken']);
-        $this->Auth->deny(['authorize']);
+        $this->Authentication->addUnauthenticatedActions(['oauth', 'accessToken']);
 
         // if accessToken action, disable CsrfComponent|SecurityComponent
         if ($this->request->getParam('action') === 'accessToken') {
-            if ($this->components()->has('Csrf')) {
-                $this->components()->unload('Csrf');
-            }
-            if ($this->components()->has('Security')) {
-                $this->components()->unload('Security');
+            if ($this->components()->has('FormProtection')) {
+                $this->components()->unload('FormProtection');
             }
         }
     }
@@ -53,17 +49,17 @@ class OAuthController extends AppController
     /**
      * on Controller.initialize
      *
-     * @param Event $event the event
-     * @return Response|null
+     * @param \Cake\Event\EventInterface $event the event
+     * @return \Cake\Http\Response|null
      */
-    public function beforeFilter(Event $event): ?Response
+    public function beforeFilter(EventInterface $event): ?Response
     {
         // if prompt=login on authorize action, then logout and remove prompt params
         if (
             $this->request->getParam('action') === 'authorize'
             && $this->request->getQuery('prompt') === 'login'
         ) {
-            $this->Auth->logout();
+            $this->Authentication->logout();
 
             $query = $this->request->getQueryParams();
             unset($query['prompt']);
@@ -90,7 +86,7 @@ class OAuthController extends AppController
     }
 
     /**
-     * @return Response|ResponseInterface|void
+     * @return \Cake\Http\Response|\Psr\Http\Message\ResponseInterface|void
      */
     public function authorize()
     {
@@ -100,7 +96,8 @@ class OAuthController extends AppController
 
             $this->dispatchEvent('OAuthServer.beforeAuthorize', [$authRequest]);
 
-            if ($userId = $this->Auth->user($this->OAuth->getPrimaryKey())) {
+            $userId = $this->Authentication->getIdentity()->getIdentifier();
+            if ($userId) {
                 $authRequest->setUser(new User($userId));
             }
 
@@ -143,14 +140,14 @@ class OAuthController extends AppController
             'client' => $authRequest->getClient(),
             'scopes' => $authRequest->getScopes(),
         ];
-        $user = $this->Auth->user();
+        $user = $this->Authentication->getIdentity();
 
         $this->set(compact('authParams', 'user'));
-        $this->set('__serialize', ['authParams', 'user']);
+        $this->viewBuilder()->setOption('serialize', ['authParams', 'user']);
     }
 
     /**
-     * @return Response|ResponseInterface|null
+     * @return \Cake\Http\Response|\Psr\Http\Message\ResponseInterface|null
      */
     public function accessToken()
     {

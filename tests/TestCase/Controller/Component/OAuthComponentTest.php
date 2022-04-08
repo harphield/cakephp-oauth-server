@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Controller\Component;
 
 use Cake\Controller\ComponentRegistry;
-use Cake\Controller\Component\AuthComponent;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Http\Response;
@@ -11,6 +11,7 @@ use Cake\Http\ServerRequest;
 use Cake\TestSuite\TestCase;
 use League\OAuth2\Server\AuthorizationServer;
 use OAuthServer\Controller\Component\OAuthComponent;
+use TestApp\AuthenticationServiceProvider;
 
 class OAuthComponentTest extends TestCase
 {
@@ -40,27 +41,22 @@ class OAuthComponentTest extends TestCase
      */
     private $controller;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->controller = new Controller(new ServerRequest(), new Response());
         $this->componentRegistry = new ComponentRegistry($this->controller);
-        $this->controller->Auth = new AuthComponent($this->componentRegistry, [
-            'authenticate' => [
-                AuthComponent::ALL => [
-                    'userModel' => 'Users',
-                    'fields' => [
-                        'username' => 'email',
-                    ],
-                ],
-                'Form',
-            ],
-        ]);
+        $this->controller->setRequest(
+            $this->controller->getRequest()->withAttribute(
+                'authentication',
+                (new AuthenticationServiceProvider())->getAuthenticationService($this->controller->getRequest())
+            )
+        );
 
         $this->component = new OAuthComponent($this->componentRegistry, Configure::read('OAuthServer', []));
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->component, $this->componentRegistry);
         parent::tearDown();
@@ -80,9 +76,9 @@ class OAuthComponentTest extends TestCase
         $this->assertSame(['Password', 'RefreshToken'], $component->getConfig('supportedGrants'));
     }
 
-    public function testGetPrimaryKey()
+    public function testGetUserIdentityPath()
     {
-        $this->assertSame('id', $this->component->getPrimaryKey());
+        $this->assertSame('id', $this->component->getUserIdentityPath());
     }
 
     public function testFindUser()

@@ -26,7 +26,7 @@ class RefreshTokensFixture extends TestFixture
         ],
     ];
 
-    public function init()
+    public function init(): void
     {
         $this->records[] = [
             'refresh_token' => 'exist_refresh_token_1',

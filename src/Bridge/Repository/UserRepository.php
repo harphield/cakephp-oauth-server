@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge\Repository;
 
@@ -14,14 +15,14 @@ use OAuthServer\Bridge\UserFinderByUserCredentialsInterface;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * @var RepositoryInterface
+     * @var \Cake\Datasource\RepositoryInterface
      */
     private $finder;
 
     /**
      * UserRepository constructor.
      *
-     * @param UserFinderByUserCredentialsInterface $finder user finder
+     * @param \OAuthServer\Bridge\UserFinderByUserCredentialsInterface $finder user finder
      */
     public function __construct(UserFinderByUserCredentialsInterface $finder)
     {
@@ -29,17 +30,21 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function getUserEntityByUserCredentials($username, $password, $grantType, ClientEntityInterface $clientEntity)
-    {
+    public function getUserEntityByUserCredentials(
+        $username,
+        $password,
+        $grantType,
+        ClientEntityInterface $clientEntity
+    ) {
         $user = $this->finder->findUser($username, $password);
 
-        return $user ? new User($user->get($this->finder->getPrimaryKey())) : null;
+        return $user ? new User($user->get($this->finder->getUserIdentityPath())) : null;
     }
 
     /**
-     * @param RepositoryInterface $finder the User's table
+     * @param \Cake\Datasource\RepositoryInterface $finder the User's table
      * @return void
      */
     public function setFinder(RepositoryInterface $finder): void

@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\Database\Schema\TableSchema;
-use Cake\Datasource\EntityInterface;
+use Cake\Database\Schema\TableSchemaInterface;
 use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\Utility\Security;
@@ -16,18 +16,18 @@ use OAuthServer\Model\Entity\Client;
 /**
  * Client Model
  *
- * @method Client get($primaryKey, $options = [])
- * @method Client newEntity($data = null, array $options = [])
- * @method Client[] newEntities(array $data, array $options = [])
- * @method Client|bool save(EntityInterface $entity, $options = [])
- * @method Client patchEntity(EntityInterface $entity, array $data, array $options = [])
- * @method Client[] patchEntities($entities, array $data, array $options = [])
- * @method Client findOrCreate($search, callable $callback = null, $options = [])
+ * @method \OAuthServer\Model\Entity\Client get($primaryKey, $options = [])
+ * @method \OAuthServer\Model\Entity\Client newEntity($data = null, array $options = [])
+ * @method \OAuthServer\Model\Entity\Client[] newEntities(array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Client|bool save(\OAuthServer\Model\Table\EntityInterface $entity, $options = [])
+ * @method \OAuthServer\Model\Entity\Client patchEntity(\OAuthServer\Model\Table\EntityInterface $entity, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Client[] patchEntities($entities, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Client findOrCreate($search, callable $callback = null, $options = [])
  */
 class OauthClientsTable extends Table
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -40,9 +40,9 @@ class OauthClientsTable extends Table
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function _initializeSchema(TableSchema $schema): TableSchema
+    protected function _initializeSchema(TableSchemaInterface $schema): TableSchemaInterface
     {
         $schema->setColumnType('redirect_uri', 'json');
         $schema->setColumnType('grant_types', 'json');
@@ -51,7 +51,7 @@ class OauthClientsTable extends Table
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -60,7 +60,7 @@ class OauthClientsTable extends Table
         $validator
             ->requirePresence('name', 'create')
             ->maxLength('name', 200)
-            ->notEmpty('name');
+            ->notEmptyString('name');
 
         $validator
             ->requirePresence('redirect_uri', 'create')
@@ -85,7 +85,7 @@ class OauthClientsTable extends Table
 
         $validator
             ->isArray('grant_types')
-            ->allowEmpty('grant_types')
+            ->allowEmptyString('grant_types')
             ->add('grant_types', 'allowed', [
                 'rule' => static function ($check) {
                     $check = (array)$check;
@@ -105,8 +105,8 @@ class OauthClientsTable extends Table
     }
 
     /**
-     * @param Event $event Event object
-     * @param Client $client Client entity
+     * @param \Cake\Event\Event $event Event object
+     * @param \OAuthServer\Model\Entity\Client $client Client entity
      * @return void
      * @noinspection PhpUnusedParameterInspection
      */

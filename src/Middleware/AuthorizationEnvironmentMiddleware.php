@@ -1,9 +1,7 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Middleware;
-
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * For apache + php-fpm|php-cgi
@@ -33,10 +31,10 @@ class AuthorizationEnvironmentMiddleware
     /**
      * Serve assets if the path matches one.
      *
-     * @param ServerRequestInterface $request The request.
-     * @param ResponseInterface $response The response.
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
      * @param callable $next Callback to invoke the next middleware.
-     * @return ResponseInterface A response
+     * @return \Psr\Http\Message\ResponseInterface A response
      */
     public function __invoke($request, $response, $next)
     {

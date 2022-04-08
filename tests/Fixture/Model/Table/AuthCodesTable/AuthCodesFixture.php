@@ -7,7 +7,7 @@ use OAuthServer\Test\Fixture\AuthCodesFixture as BaseFixture;
 
 class AuthCodesFixture extends BaseFixture
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->records = [];

@@ -1,37 +1,32 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\Datasource\EntityInterface;
-use Cake\ORM\Association\BelongsTo;
-use Cake\ORM\Association\BelongsToMany;
-use Cake\ORM\Association\HasMany;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use OAuthServer\Model\Entity\AccessToken;
 
 /**
  * AccessToken Model
  *
- * @property BelongsTo|OauthClientsTable $OauthClients
- * @property HasMany|AccessTokenScopesTable $AccessTokenScopes
- * @property BelongsToMany|OauthScopesTable $OauthScopes
- *
- * @method AccessToken get($primaryKey, $options = [])
- * @method AccessToken newEntity($data = null, array $options = [])
- * @method AccessToken[] newEntities(array $data, array $options = [])
- * @method AccessToken|bool save(EntityInterface $entity, $options = [])
- * @method AccessToken patchEntity(EntityInterface $entity, array $data, array $options = [])
- * @method AccessToken[] patchEntities($entities, array $data, array $options = [])
- * @method AccessToken findOrCreate($search, callable $callback = null, $options = [])
+ * @property \Cake\ORM\Association\BelongsTo|\OAuthServer\Model\Table\OauthClientsTable $OauthClients
+ * @property \Cake\ORM\Association\HasMany|\OAuthServer\Model\Table\AccessTokenScopesTable $AccessTokenScopes
+ * @property \OAuthServer\Model\Table\BelongsToMany|\OAuthServer\Model\Table\OauthScopesTable $OauthScopes
+ * @method \OAuthServer\Model\Table\AccessToken get($primaryKey, $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken newEntity($data = null, array $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken[] newEntities(array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken|bool save(\OAuthServer\Model\Table\EntityInterface $entity, $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken patchEntity(\OAuthServer\Model\Table\EntityInterface $entity, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken[] patchEntities($entities, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\AccessToken findOrCreate($search, callable $callback = null, $options = [])
  */
 class AccessTokensTable extends Table implements RevocableTokensTableInterface
 {
     use RevocableTokensTableTrait;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -60,7 +55,7 @@ class AccessTokensTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -71,7 +66,7 @@ class AccessTokensTable extends Table implements RevocableTokensTableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {

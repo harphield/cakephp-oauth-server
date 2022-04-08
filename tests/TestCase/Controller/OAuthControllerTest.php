@@ -1,14 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Controller;
 
 use Cake\Core\Configure;
-use Cake\Core\Plugin;
 use Cake\Http\ServerRequest;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestCase;
 use OAuthServer\Controller\OAuthController;
+use OAuthServer\Plugin as OAuthServerPlugin;
+use TestApp\AuthenticationServiceProvider;
 use TestApp\Controller\TestAppController;
 
 class OAuthControllerTest extends IntegrationTestCase
@@ -27,7 +29,7 @@ class OAuthControllerTest extends IntegrationTestCase
     /**
      * @noinspection PhpIncludeInspection
      */
-    public function setUp()
+    public function setUp(): void
     {
         // class Router needs to be loaded in order for TestCase to automatically include routes
         // not really sure how to do it properly, this hotfix seems good enough
@@ -37,12 +39,21 @@ class OAuthControllerTest extends IntegrationTestCase
 
         Router::connect('/');
         Router::scope('/', static function (RouteBuilder $route) {
+            $OAuthServerPlugin = new OAuthServerPlugin();
+            $OAuthServerPlugin->routes($route);
+
             $route->fallbacks();
         });
-        include Plugin::configPath('OAuthServer') . 'routes.php';
+
+        $authenticationServiceProvider = new AuthenticationServiceProvider();
+        $this->configRequest([
+            'attributes' => [
+                'authentication' => $authenticationServiceProvider->getAuthenticationService(new ServerRequest()),
+            ],
+        ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
     }
@@ -55,7 +66,7 @@ class OAuthControllerTest extends IntegrationTestCase
 
     public function testAssertRoute()
     {
-        $parsed = Router::parseRequest(new ServerRequest('/oauth'));
+        $parsed = Router::parseRequest(new ServerRequest(['url' => '/oauth']));
         $this->assertEquals([
             'controller' => 'OAuth',
             'action' => 'oauth',
@@ -64,7 +75,7 @@ class OAuthControllerTest extends IntegrationTestCase
             '_matchedRoute' => '/oauth',
         ], $parsed);
 
-        $parsed = Router::parseRequest(new ServerRequest('/oauth/authorize'));
+        $parsed = Router::parseRequest(new ServerRequest(['url' => '/oauth/authorize']));
         $this->assertEquals([
             'controller' => 'OAuth',
             'action' => 'authorize',
@@ -73,7 +84,7 @@ class OAuthControllerTest extends IntegrationTestCase
             '_matchedRoute' => '/oauth/authorize',
         ], $parsed);
 
-        $parsed = Router::parseRequest(new ServerRequest('/oauth/access_token'));
+        $parsed = Router::parseRequest(new ServerRequest(['url' => '/oauth/access_token']));
         $this->assertEquals([
             'controller' => 'OAuth',
             'action' => 'accessToken',
@@ -97,7 +108,8 @@ class OAuthControllerTest extends IntegrationTestCase
 
         $this->get($authorizeUrl);
 
-        $this->assertRedirect(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => $authorizeUrl]]);
+        // cakephp/authentication plugin does not absolute( `fullBase` ) url
+        $this->assertRedirectContains(Router::url(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => $authorizeUrl], '_full' => false]));
     }
 
     public function testAuthorizeInvalidClientId()
@@ -222,7 +234,9 @@ class OAuthControllerTest extends IntegrationTestCase
         $this->assertResponseOk();
         $response = $this->grabResponseJson();
         $this->assertSame('Bearer', $response['token_type']);
-        $this->assertSame(3600, $response['expires_in']);
+        // Allow 5 seconds difference
+        $this->assertLessThanOrEqual(3600, $response['expires_in']);
+        $this->assertGreaterThanOrEqual(3595, $response['expires_in']);
         $this->assertArrayHasKey('access_token', $response);
         $this->assertArrayHasKey('refresh_token', $response);
 
@@ -236,7 +250,9 @@ class OAuthControllerTest extends IntegrationTestCase
         $this->assertResponseOk();
         $refreshed = $this->grabResponseJson();
         $this->assertSame('Bearer', $refreshed['token_type']);
-        $this->assertSame(3600, $refreshed['expires_in']);
+        // Allow 5 seconds difference
+        $this->assertLessThanOrEqual(3600, $refreshed['expires_in']);
+        $this->assertGreaterThanOrEqual(3595, $response['expires_in']);
         $this->assertArrayHasKey('access_token', $refreshed);
         $this->assertArrayHasKey('refresh_token', $refreshed);
         $this->assertNotEquals($response['access_token'], $refreshed['access_token']);

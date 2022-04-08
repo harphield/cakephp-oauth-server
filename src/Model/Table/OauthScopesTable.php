@@ -1,9 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Table;
 
-use Cake\Datasource\EntityInterface;
-use Cake\ORM\Association\HasMany;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use OAuthServer\Model\Entity\Scope;
@@ -11,21 +10,20 @@ use OAuthServer\Model\Entity\Scope;
 /**
  * Scope Model
  *
- * @property HasMany|AccessTokenScopesTable $AccessTokenScopes
- * @property HasMany|OauthAuthCodeScopesTable $AuthCodeScopes
- *
- * @method Scope get($primaryKey, $options = [])
- * @method Scope newEntity($data = null, array $options = [])
- * @method Scope[] newEntities(array $data, array $options = [])
- * @method Scope|bool save(EntityInterface $entity, $options = [])
- * @method Scope patchEntity(EntityInterface $entity, array $data, array $options = [])
- * @method Scope[] patchEntities($entities, array $data, array $options = [])
- * @method Scope findOrCreate($search, callable $callback = null, $options = [])
+ * @property \Cake\ORM\Association\HasMany|\OAuthServer\Model\Table\AccessTokenScopesTable $AccessTokenScopes
+ * @property \OAuthServer\Model\Table\HasMany|\OAuthServer\Model\Table\OauthAuthCodeScopesTable $AuthCodeScopes
+ * @method \OAuthServer\Model\Entity\Scope get($primaryKey, $options = [])
+ * @method \OAuthServer\Model\Entity\Scope newEntity($data = null, array $options = [])
+ * @method \OAuthServer\Model\Entity\Scope[] newEntities(array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Scope|bool save(\OAuthServer\Model\Table\EntityInterface $entity, $options = [])
+ * @method \OAuthServer\Model\Entity\Scope patchEntity(\OAuthServer\Model\Table\EntityInterface $entity, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Scope[] patchEntities($entities, array $data, array $options = [])
+ * @method \OAuthServer\Model\Entity\Scope findOrCreate($search, callable $callback = null, $options = [])
  */
 class OauthScopesTable extends Table
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function initialize(array $config): void
     {
@@ -44,7 +42,7 @@ class OauthScopesTable extends Table
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -53,7 +51,7 @@ class OauthScopesTable extends Table
             ->requirePresence('id', 'create');
         $validator
             ->maxLength('description', 200)
-            ->allowEmpty('description');
+            ->allowEmptyString('description');
 
         return $validator;
     }

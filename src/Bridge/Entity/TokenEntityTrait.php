@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge\Entity;
 
@@ -7,9 +8,8 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 
 trait TokenEntityTrait
 {
-
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getUserIdentifier()
     {
@@ -17,7 +17,7 @@ trait TokenEntityTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setUserIdentifier($identifier)
     {
@@ -25,7 +25,7 @@ trait TokenEntityTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getClient()
     {
@@ -33,7 +33,7 @@ trait TokenEntityTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setClient(ClientEntityInterface $client)
     {
@@ -42,15 +42,17 @@ trait TokenEntityTrait
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getScopes()
     {
-        return $this->scopes;
+        return collection($this->scopes ?? [])->extract(static function ($scope) {
+            return $scope->getIdentifier();
+        })->toList();
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function addScope(ScopeEntityInterface $scope)
     {
@@ -58,5 +60,13 @@ trait TokenEntityTrait
             $this->scopes = [];
         }
         $this->scopes[] = $scope;
+    }
+
+    /**
+     * @return \OAuthServer\Model\Entity\Scope[]
+     */
+    public function getRawScopes()
+    {
+        return $this->scopes;
     }
 }

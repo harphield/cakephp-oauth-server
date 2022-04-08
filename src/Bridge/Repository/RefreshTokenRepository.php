@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Bridge\Repository;
 
@@ -8,7 +9,6 @@ use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use OAuthServer\Model\Entity\RefreshToken;
-use OAuthServer\Model\Table\RefreshTokensTable;
 
 /**
  * implemented RefreshTokenRepositoryInterface
@@ -19,7 +19,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     use RevokeTokenRepositoryTrait;
 
     /**
-     * @var RefreshTokensTable
+     * @var \OAuthServer\Model\Table\RefreshTokensTable
      */
     private $table;
 
@@ -32,7 +32,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getNewRefreshToken()
     {
@@ -40,7 +40,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity)
     {
@@ -63,7 +63,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function revokeRefreshToken($tokenId)
     {
@@ -75,7 +75,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function isRefreshTokenRevoked($tokenId)
     {

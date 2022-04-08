@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Entity;
 
@@ -27,13 +28,5 @@ class Scope extends Entity implements ScopeEntityInterface
     public function __toString(): string
     {
         return $this->getIdentifier();
-    }
-
-    /**
-     * @return array|mixed|string
-     */
-    public function jsonSerialize()
-    {
-        return (string)$this;
     }
 }

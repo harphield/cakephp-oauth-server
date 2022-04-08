@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Bridge\Repository;
 
@@ -16,13 +17,13 @@ class ClientRepositoryTest extends TestCase
      */
     private $repository;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->repository = new ClientRepository();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->repository);
         parent::tearDown();

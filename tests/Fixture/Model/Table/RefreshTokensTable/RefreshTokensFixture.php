@@ -12,7 +12,7 @@ use OAuthServer\Test\Fixture\RefreshTokensFixture as BaseFixture;
 
 class RefreshTokensFixture extends BaseFixture
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->recprds = [];

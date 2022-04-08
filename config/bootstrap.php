@@ -8,7 +8,9 @@ use Cake\Core\Configure;
  */
 $appControllerReal = Configure::read('OAuthServer.appController', 'App\Controller\AppController');
 $appControllerAlias = 'OAuthServer\Controller\AppController';
-class_alias($appControllerReal, $appControllerAlias);
+if (!class_exists('OAuthServer\Controller\AppController')) {
+    class_alias($appControllerReal, $appControllerAlias);
+}
 // backward compatible <3.6.0
 if (!class_exists('Cake\Http\Exception\HttpException')) {
     class_alias('Cake\Network\Exception\HttpException', 'Cake\Http\Exception\HttpException');

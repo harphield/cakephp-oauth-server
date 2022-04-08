@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Model\Entity;
 
@@ -6,7 +7,6 @@ use Cake\ORM\Entity;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
 use OAuthServer\Bridge\Entity\ExpiryDateTimeTrait;
 use OAuthServer\Bridge\Entity\TokenEntityTrait;
-use OAuthServer\Bridge\Entity\User;
 
 /**
  * Class AuthCode
@@ -17,9 +17,9 @@ use OAuthServer\Bridge\Entity\User;
  * @property string $client_id
  * @property string|int $user_id
  * @property bool $revoked
- * @property Client $client
- * @property User $user
- * @property Scope[] $scopes
+ * @property \OAuthServer\Model\Entity\Client $client
+ * @property \OAuthServer\Bridge\Entity\User $user
+ * @property \OAuthServer\Model\Entity\Scope[] $scopes
  */
 class AuthCode extends Entity implements AuthCodeEntityInterface
 {

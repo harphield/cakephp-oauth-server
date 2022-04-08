@@ -1,12 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace OAuthServer\Test\TestCase\Model\Table;
 
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use OAuthServer\Model\Table\AccessTokensTable;
-use OAuthServer\Model\Table\RefreshTokensTable;
 
 class RefreshTokensTableTest extends TestCase
 {
@@ -29,7 +28,7 @@ class RefreshTokensTableTest extends TestCase
      */
     private $AccessTokens;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->RefreshTokens = TableRegistry::getTableLocator()->get('OAuthServer.RefreshTokens');
@@ -37,7 +36,7 @@ class RefreshTokensTableTest extends TestCase
         FrozenTime::setTestNow('2020-01-01 01:00:00');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->RefreshTokens, $this->AccessTokens);
         FrozenTime::setTestNow();
